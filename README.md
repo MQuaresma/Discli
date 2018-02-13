@@ -1,2 +1,2 @@
-# Haskord
+# Discli
 Terminal client for Discord
