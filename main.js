@@ -29,6 +29,8 @@ function listAvailableChannels(){
 
 rl.on('line',(input)=>{
     if(input.localeCompare(':q')==0){
+        cli.destroy();
+        process.exit(0);
         //TODO:quit client
     }else if(input.localeCompare(':h')==0){
         //TODO:show help
