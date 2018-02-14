@@ -1,0 +1,15 @@
+## macOS
+.DS_Store
+._*
+
+## Others
+**/*.swp
+*.class
+**/snapshot*
+**/*.pdf
+node_modules/*
+
+## Latex
+**/*.aux
+**/*.log
+**/*.toc
