@@ -7,7 +7,7 @@
 *.class
 **/snapshot*
 **/*.pdf
-node_modules/*
+node_modules/**
 
 ## Latex
 **/*.aux
