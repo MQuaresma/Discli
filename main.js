@@ -1,8 +1,9 @@
 const Discord = require('discord.js');
 const readline = require('readline');
+const homeDir = require('os').homedir()
 const fs = require('fs');
 
-process.stdin.setEncoding('utf8')
+process.stdin.setEncoding('utf8');
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -85,10 +86,11 @@ function login(token){
 }
 
 function getToken(callback){
-    fs.readFile('/Users/miguelq/.disclirc', 'utf8',(err,data)=>{
+    configPath=homeDir+'/.disclirc';
+    fs.readFile(configPath, 'utf8',(err,data)=>{
         if(err){ //file not found
             rl.question("Token:", function(tkn){
-                fs.writeFileSync('/Users/miguelq/.disclirc', tkn);
+                fs.writeFileSync(configPath, tkn);
                 callback(tkn);
             });
         }else{
