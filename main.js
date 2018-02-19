@@ -11,7 +11,7 @@ const rl = readline.createInterface({
 
 const cli=new Discord.Client();
 var guildNames=[];
-var curChannelId=-1;
+var curChannel=null;
 
 /*when a EOF is recieved*/
 process.stdin.on('end',function(){          
@@ -25,8 +25,10 @@ cli.on('ready', function(){
 });
 
 cli.on('message',(msg)=>{
-    if(msg.channel.id==curChannelId) //print msg if on current channel
+    if(curChannel!=null && msg.channel.id==curChannel.id && msg.author.username!=cli.user.username){ //print msg if on current channel
         console.log(msg.author.username+'-'+msg.content);
+        rl.prompt();
+    }    
 });
 
 function listAvailableServers(){
@@ -39,11 +41,10 @@ function listChannels(serverId){
     var serverName=guildNames[serverId];
     var server=(cli.guilds.filter(server=>server.name.localeCompare(serverName)==0).first(1))[0];
     if(server!=undefined){
-        var channels=server.channels.values();
+        var channels=Array.from(server.channels.filter(ch=>ch.type!=null).values());
         console.log("Available channels:");
-        for(let channel of channels)
-            if(channel.type!=null)
-                console.log(channel.name);
+        for(i=0;i<channels.length;i++)
+            console.log(i+'-'+channels[i].name);
     }else{
         console.log("Invalid server");
     }
@@ -53,8 +54,12 @@ function joinChannel(serverId,channelId){
     var serverName=guildNames[serverId];
     var server=(cli.guilds.filter(server=>server.name.localeCompare(serverName)==0).first(1))[0];
     if(server!=undefined){
-        var channel=server.channels.map(ch=>ch.name).get(channel);
-    }
+        var channels=Array.from(server.channels.filter(ch=>ch.type!=null).values());
+        if(0<=channelId<channels.length){
+            curChannel=channels[channelId];
+            console.log("Joined "+ curChannel.name+" sucessfully!");
+        }else console.log("Invalid channel");
+    }else console.log("Invalid server");
 }
 
 rl.on('line',(input)=>{
@@ -68,17 +73,18 @@ rl.on('line',(input)=>{
         console.log(":q -> quit");
         console.log(":ls ->list available servers");
         console.log(":lc id ->list available channels");
-        console.log(":js idS idC ->join channel with idC on server with idS");
+        console.log(":jc idS idC ->join channel with idC on server with idS");
     }else if(input.localeCompare(':ls')==0){            //list server
         listAvailableServers();
     }else if(input.substr(0,4).localeCompare(':lc ')==0){ //list channels on server
-        listChannels(Number(input.substr(4,)));
-    }else if(input.substr(0,3).localeCompare(":js")){ //join server
-        //TODO:join server 
-    }else if(input.substr(0,4).localeCompare(":jc ")){ //join server
-        //TODO:join channel  
-        
-    } 
+        input=input.split(' ');
+        listChannels(Number(input[1]));
+    }else if(input.substr(0,4).localeCompare(':jc ')==0){ //join server
+        input=input.split(' ');
+        joinChannel(Number(input[1]), Number(input[2]));
+    }else{
+        curChannel.send(input);
+    }
     rl.prompt();
 });
 
