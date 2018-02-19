@@ -39,10 +39,11 @@ function listChannels(serverId){
     var serverName=guildNames[serverId];
     var server=(cli.guilds.filter(server=>server.name.localeCompare(serverName)==0).first(1))[0];
     if(server!=undefined){
-        var channels=server.channels.map(ch=>ch.name);
-        console.log("Available channels:")          
-        for(i=0;i<channels.length; i++)
-            console.log(i+'-'+channels[i]);
+        var channels=server.channels.values();
+        console.log("Available channels:");
+        for(let channel of channels)
+            if(channel.type!=null)
+                console.log(channel.name);
     }else{
         console.log("Invalid server");
     }
