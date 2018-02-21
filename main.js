@@ -50,6 +50,12 @@ function listChannels(serverId){
     }
 }
 
+function listDMChannels(){
+    var friends=Array.from(cli.user.friends.values());
+    for(let friend of friends)
+        console.log(friend.username+'('+friend.presence.status+')');
+}
+
 function joinChannel(serverId,channelId){
     var serverName=guildNames[serverId];
     var server=(cli.guilds.filter(server=>server.name.localeCompare(serverName)==0).first(1))[0];
@@ -58,8 +64,17 @@ function joinChannel(serverId,channelId){
         if(0<=channelId<channels.length){
             curChannel=channels[channelId];
             console.log("Joined "+ curChannel.name+" sucessfully!");
+            rl.setPrompt(curChannel.name+">");
         }else console.log("Invalid channel");
     }else console.log("Invalid server");
+}
+
+function joinDmChannel(fName){
+    var friend=(cli.user.friends.filter(f=>f.username.localeCompare(fName)==0).first(1))[0];
+    if(friend!=undefined){
+        curChannel=friend.dmChannel;
+        console.log("Now chatting with "+friend.username); 
+    }else console.log("Invalid username");
 }
 
 rl.on('line',(input)=>{
@@ -72,16 +87,23 @@ rl.on('line',(input)=>{
         console.log(":h -> print this menu");
         console.log(":q -> quit");
         console.log(":ls ->list available servers");
+        console.log(":lf ->list friends and their status");
         console.log(":lc id ->list available channels");
         console.log(":jc idS idC ->join channel with idC on server with idS");
+        console.log(":dm fName ->join dm channel with friend fName");
     }else if(input.localeCompare(':ls')==0){            //list server
         listAvailableServers();
+    }else if(input.localeCompare(':lf')==0){                        //list dm channels
+        listDMChannels();
     }else if(input.substr(0,4).localeCompare(':lc ')==0){ //list channels on server
         input=input.split(' ');
         listChannels(Number(input[1]));
     }else if(input.substr(0,4).localeCompare(':jc ')==0){ //join server
         input=input.split(' ');
         joinChannel(Number(input[1]), Number(input[2]));
+    }else if(input.substr(0,4).localeCompare(':dm ')==0){
+        input=input.split(' ') ;
+        joinDmChannel(input[1]);
     }else{
         curChannel.send(input);
     }
