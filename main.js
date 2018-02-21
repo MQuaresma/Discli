@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const notifier = require('node-notifier');
 const readline = require('readline');
 const homeDir = require('os').homedir()
 const fs = require('fs');
@@ -24,11 +25,20 @@ cli.on('ready', function(){
     rl.prompt();
 });
 
+// Display or notify user when new message arrives
 cli.on('message',(msg)=>{
     if(curChannel!=null && msg.channel.id==curChannel.id && msg.author.username!=cli.user.username){ //print msg if on current channel
         console.log(msg.author.username+'-'+msg.content);
         rl.prompt();
-    }    
+    }else if(msg.channel.muted==false){
+        var title=msg.author;
+        if(msg.channel.name!=undefined) //if it's not a dm channel
+            title += ' '+'('+msg.channel.guild+','+msg.channel.name+')';
+        notifier.notify({
+            'title':title,
+            'message':msg.content
+        });
+    }
 });
 
 function listAvailableServers(){
@@ -91,6 +101,7 @@ rl.on('line',(input)=>{
         console.log(":lc id ->list available channels");
         console.log(":jc idS idC ->join channel with idC on server with idS");
         console.log(":dm fName ->join dm channel with friend fName");
+        console.log(":m idS -> mute server with idS");
     }else if(input.localeCompare(':ls')==0){            //list server
         listAvailableServers();
     }else if(input.localeCompare(':lf')==0){                        //list dm channels
